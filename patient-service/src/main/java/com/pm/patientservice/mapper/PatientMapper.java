@@ -8,7 +8,7 @@ import com.pm.patientservice.model.Patient;
  * @since 4/8/2025
  */
 public class PatientMapper {
-    public PatientResponseDTO mapToPatientDTO(Patient patient) {
+    public static PatientResponseDTO mapToPatientDTO(Patient patient) {
         return PatientResponseDTO.builder().
                 id(patient.getId().toString()).name(patient.getName()).
                 address(patient.getAddress()).email(patient.getEmail()).
