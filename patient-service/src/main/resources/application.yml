@@ -11,6 +11,8 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   application:
     name: patient-service
-
+  sql:
+    init:
+      mode: always
 server:
   port: 4000
