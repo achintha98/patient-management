@@ -22,6 +22,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Data
 public class PatientResponseDTO {
 
     private String id;
