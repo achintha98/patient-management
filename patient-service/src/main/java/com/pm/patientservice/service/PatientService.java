@@ -1,5 +1,6 @@
 package com.pm.patientservice.service;
 
+import com.pm.patientservice.dto.PagedPatientResponseDTO;
 import com.pm.patientservice.dto.PatientRequestDTO;
 import com.pm.patientservice.dto.PatientResponseDTO;
 import com.pm.patientservice.exception.EmailAlreadyExistsException;
@@ -9,6 +10,10 @@ import com.pm.patientservice.kafka.KafkaProducer;
 import com.pm.patientservice.mapper.PatientMapper;
 import com.pm.patientservice.model.Patient;
 import com.pm.patientservice.repository.PatientRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -73,4 +78,31 @@ public class PatientService {
                 ("Patient not found with the given ID" + patientId));
         patientRepository.deleteById(patientId);
     }
+
+    public PagedPatientResponseDTO getPatients(int page, int size, String sortBy, String sortDir, String nameFilter) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Patient> patientPage;
+        if (nameFilter != null && !nameFilter.isBlank()) {
+            patientPage = patientRepository.findByNameContainingIgnoreCase(nameFilter, pageable);
+        } else {
+            patientPage = patientRepository.findAll(pageable);
+        }
+
+        List<PatientResponseDTO> patientDTOs = patientPage.getContent()
+                .stream()
+                .map(PatientMapper::mapToPatientResponseDTO)
+                .toList();
+
+        return new PagedPatientResponseDTO(
+                patientDTOs,
+                patientPage.getNumber(),
+                patientPage.getTotalPages(),
+                patientPage.getTotalElements(),
+                patientPage.getSize(),
+                patientPage.isLast()
+        );
+    }
+
 }

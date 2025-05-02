@@ -1,5 +1,6 @@
 package com.pm.patientservice.controller;
 
+import com.pm.patientservice.dto.PagedPatientResponseDTO;
 import com.pm.patientservice.dto.PatientRequestDTO;
 import com.pm.patientservice.dto.PatientResponseDTO;
 import com.pm.patientservice.dto.validators.CreatePatientValidationGroup;
@@ -57,5 +58,18 @@ public class PatientController {
     public ResponseEntity<PatientResponseDTO> deletePatient(@PathVariable UUID id) {
         patientService.deletePatient(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/patients")
+    @Operation(summary = "Get patients with pagination, sorting, and optional name filtering")
+    public ResponseEntity<PagedPatientResponseDTO> getPagedPatients(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) String nameFilter) {
+
+        PagedPatientResponseDTO pagedPatients = patientService.getPatients(page, size, sortBy, sortDir, nameFilter);
+        return ResponseEntity.ok(pagedPatients);
     }
 }
