@@ -20,3 +20,12 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
 server:
   port: 4000
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true

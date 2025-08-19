@@ -1,0 +1,91 @@
+version: '3.8'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "22181:2181"
+    networks:
+      - spring-net
+  kafka:
+    image: confluentinc/cp-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - spring-net
+  postgres:
+    image: postgres
+    container_name: postgres-pm
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: patient
+    ports:
+      - "5432:5432"
+    networks:
+      - spring-net
+
+  patient-service:
+    image: patient-service
+    container_name: patient-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/patient
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      BILLING_SERVICE_ADDRESS: billing-service
+      BILLING_SERVICE_GRPC_PORT: 9001
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "4000:4000"
+    depends_on:
+      - billing-service
+      - postgres
+      - kafka
+    networks:
+      - spring-net
+
+  api-gateway:
+    image: api-gateway:latest
+    ports:
+      - "4004:4004"
+    networks:
+      - spring-net
+
+  billing-service:
+    image: billing-service
+    container_name: billing-service
+    ports:
+      - "4001:4001"
+      - "9001:9001"
+    depends_on:
+      - postgres
+    networks:
+      - spring-net
+
+  analytics-service:
+    image: analytics-service
+    container_name: analytics-service
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "4002:4002"
+    depends_on:
+      - patient-service
+      - postgres
+      - kafka
+    networks:
+      - spring-net
+
+networks:
+  spring-net:
+    driver: bridge
