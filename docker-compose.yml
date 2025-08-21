@@ -23,17 +23,30 @@ services:
       - "9092:9092"
     networks:
       - spring-net
-  postgres:
+
+  postgres-patient:
     image: postgres
-    container_name: postgres-pm
+    container_name: postgres-patient
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: patient
     ports:
       - "5432:5432"
-    networks:
-      - spring-net
+#    networks:
+#      - spring-net
+
+  postgres-auth:
+    image: postgres
+    container_name: postgres-auth
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: patient
+    ports:
+      - "5001:5432"
+#    networks:
+#      - spring-net
 
   patient-service:
     image: patient-service
@@ -49,7 +62,7 @@ services:
       - "4000:4000"
     depends_on:
       - billing-service
-      - postgres
+      - postgres-patient
       - kafka
     networks:
       - spring-net
@@ -68,7 +81,7 @@ services:
       - "4001:4001"
       - "9001:9001"
     depends_on:
-      - postgres
+      - postgres-patient
     networks:
       - spring-net
 
@@ -81,7 +94,7 @@ services:
       - "4002:4002"
     depends_on:
       - patient-service
-      - postgres
+      - postgres-patient
       - kafka
     networks:
       - spring-net
