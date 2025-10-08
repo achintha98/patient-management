@@ -1,0 +1,9 @@
+server:
+  port: 4000
+spring:
+  application:
+    name: transaction-service
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
