@@ -21,7 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Builder
-public class Patient {
+public class Partner {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,6 +37,12 @@ public class Patient {
 
     @NotNull
     private String address;
+
+    private boolean commissionRate;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private String patientStatus;
 
     @NotNull
     private LocalDate dateOfBirth;

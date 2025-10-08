@@ -1,8 +1,6 @@
 package com.pm.patientservice.kafka;
 
-import com.pm.patientservice.exception.GlobalExceptionHandler;
-import com.pm.patientservice.model.Patient;
-import org.slf4j.ILoggerFactory;
+import com.pm.patientservice.model.Partner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -24,9 +22,9 @@ public class KafkaProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendEvent(Patient patient) {
-        PatientEvent patientEvent = PatientEvent.newBuilder().setPatientId(patient.getId().toString()).
-                setName(patient.getName()).setEmail(patient.getEmail()).setEventType("PATIENT_CREATED").build();
+    public void sendEvent(Partner partner) {
+        PatientEvent patientEvent = PatientEvent.newBuilder().setPatientId(partner.getId().toString()).
+                setName(partner.getName()).setEmail(partner.getEmail()).setEventType("PATIENT_CREATED").build();
 
         try {
             kafkaTemplate.send("patient", patientEvent.toByteArray());

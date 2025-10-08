@@ -8,18 +8,16 @@ import com.pm.patientservice.exception.PatientNotFoundException;
 import com.pm.patientservice.grpc.BillingServiceGrpcClient;
 import com.pm.patientservice.kafka.KafkaProducer;
 import com.pm.patientservice.mapper.PatientMapper;
-import com.pm.patientservice.model.Patient;
+import com.pm.patientservice.model.Partner;
 import com.pm.patientservice.repository.PatientRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
@@ -41,8 +39,8 @@ public class PatientService {
     }
 
     public List<PatientResponseDTO> getPatientList() {
-        List<Patient> patients = patientRepository.findAll();
-        return patients.stream().map(PatientMapper::mapToPatientResponseDTO).toList();
+        List<Partner> partners = patientRepository.findAll();
+        return partners.stream().map(PatientMapper::mapToPatientResponseDTO).toList();
     }
 
     public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO) {
@@ -50,31 +48,31 @@ public class PatientService {
             throw new EmailAlreadyExistsException("A patient with this email already exists" + patientRequestDTO.getEmail());
         }
 
-        Patient patient = patientRepository.save(PatientMapper.mapFromPatientRequestDTO(patientRequestDTO));
+        Partner partner = patientRepository.save(PatientMapper.mapFromPatientRequestDTO(patientRequestDTO));
 
-        billingServiceGrpcClient.createBillingAccount(patient.getId().toString(), patient.getName(), patient.getEmail());
+        billingServiceGrpcClient.createBillingAccount(partner.getId().toString(), partner.getName(), partner.getEmail());
 
-        kafkaProducer.sendEvent(patient);
+        kafkaProducer.sendEvent(partner);
 
-        return PatientMapper.mapToPatientResponseDTO(patient);
+        return PatientMapper.mapToPatientResponseDTO(partner);
     }
 
     public PatientResponseDTO updatePatient(UUID patientId, PatientRequestDTO patientRequestDTO) {
-        Patient patient = patientRepository.findById(patientId).orElseThrow(() -> new PatientNotFoundException
+        Partner partner = patientRepository.findById(patientId).orElseThrow(() -> new PatientNotFoundException
                 ("Patient not found with the given ID" + patientId));
         if (patientRepository.existsByEmailAndIdNot(patientRequestDTO.getEmail(), patientId)) {
             throw new EmailAlreadyExistsException("A patient with this email already exists" + patientRequestDTO.getEmail());
         }
-        patient.setName(patientRequestDTO.getName());
-        patient.setAddress(patientRequestDTO.getAddress());
-        patient.setEmail(patientRequestDTO.getEmail());
-        patient.setDateOfBirth(LocalDate.parse(patientRequestDTO.getDateOfBirth()));
-        patientRepository.save(patient);
-        return PatientMapper.mapToPatientResponseDTO(patient);
+        partner.setName(patientRequestDTO.getName());
+        partner.setAddress(patientRequestDTO.getAddress());
+        partner.setEmail(patientRequestDTO.getEmail());
+        partner.setDateOfBirth(LocalDate.parse(patientRequestDTO.getDateOfBirth()));
+        patientRepository.save(partner);
+        return PatientMapper.mapToPatientResponseDTO(partner);
     }
 
     public void deletePatient(UUID patientId) {
-        Patient patient = patientRepository.findById(patientId).orElseThrow(() -> new PatientNotFoundException
+        Partner partner = patientRepository.findById(patientId).orElseThrow(() -> new PatientNotFoundException
                 ("Patient not found with the given ID" + patientId));
         patientRepository.deleteById(patientId);
     }
@@ -83,7 +81,7 @@ public class PatientService {
         Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Patient> patientPage;
+        Page<Partner> patientPage;
         if (nameFilter != null && !nameFilter.isBlank()) {
             patientPage = patientRepository.findByNameContainingIgnoreCase(nameFilter, pageable);
         } else {
