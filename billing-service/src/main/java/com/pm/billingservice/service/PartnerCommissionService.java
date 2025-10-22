@@ -19,6 +19,7 @@ import java.util.Optional;
  */
 
 @Service
+@RequiredArgsConstructor
 public class PartnerCommissionService {
 
     @Autowired
