@@ -5,6 +5,7 @@ import com.pm.billingservice.model.Partner;
 import com.pm.billingservice.model.Transaction;
 import com.pm.billingservice.repository.CommissionRuleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommissionCalculatorService {
 
+    @Autowired
     private final CommissionRuleRepository ruleRepository;
 
     public BigDecimal calculateCommission(Transaction transaction, Partner partner) {
