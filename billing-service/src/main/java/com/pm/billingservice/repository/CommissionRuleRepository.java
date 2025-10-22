@@ -16,7 +16,7 @@ import java.util.List;
  */
 
 @Repository
-public interface CommissionRuleRepository extends JpaRepository<CommissionRuleRepository, Long> {
+public interface CommissionRuleRepository extends JpaRepository<CommissionRule, Long> {
 
     @Query("""
         SELECT r FROM CommissionRule r
