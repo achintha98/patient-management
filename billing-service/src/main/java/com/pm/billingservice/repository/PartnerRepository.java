@@ -2,8 +2,10 @@ package com.pm.billingservice.repository;
 
 import com.pm.billingservice.model.Partner;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -13,4 +15,10 @@ import java.util.UUID;
 
 @Repository
 public interface PartnerRepository extends JpaRepository<Partner, Long> {
+    @Query("SELECT MIN(p.id) FROM Partner p")
+    Long findMin();
+    @Query("SELECT MAX(p.id) FROM Partner p")
+    Long findMax();
+
+    List<Partner> findByIdBetween(Long minId, Long maxId);
 }
