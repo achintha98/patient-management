@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -24,7 +25,7 @@ import java.util.UUID;
 public class Partner {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -35,14 +36,17 @@ public class Partner {
     @Column(unique = true)
     private String email;
 
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Invoice> invoices;
+
     @NotNull
     private String address;
 
     private String partnerTier;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private String patientStatus;
+//    @NotNull
+//    @Enumerated(EnumType.STRING)
+//    private String patientStatus;
 
     @NotNull
     private LocalDate dateOfBirth;
